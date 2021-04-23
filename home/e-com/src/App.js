@@ -51,7 +51,7 @@ class App extends Component {
   }
 
   componentWillUnmount(){
-    this.authListener();
+    this.authListner();
   }
 
   render() {
@@ -67,8 +67,8 @@ class App extends Component {
               
             )} />
             
-            <Route path="/registration" render={() => (
-              <MainLayout>
+            <Route path="/registration" render={() => currentUser ? <Redirect to="/"/> : (
+              <MainLayout currentUser = {currentUser}>
                 <Registration />
               </MainLayout>
             )} />
