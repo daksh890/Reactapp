@@ -8,10 +8,11 @@ import HomepageLayout from './layouts/HomepageLayout';
 
 
 //Pages
-// import Header from './components/header';
 import Homepage from './pages/Homepage';
 import Registration from './pages/Registration';
 import Login from './pages/Login';
+import Recovery from './pages/Recovery';
+
 import './default.scss';
 
 const initialstate = {
@@ -51,7 +52,7 @@ class App extends Component {
   }
 
   componentWillUnmount(){
-    this.authListener();
+    this.authListner();
   }
 
   render() {
@@ -67,8 +68,8 @@ class App extends Component {
               
             )} />
             
-            <Route path="/registration" render={() => (
-              <MainLayout>
+            <Route path="/registration" render={() => currentUser ? <Redirect to="/"/> : (
+              <MainLayout currentUser = {currentUser}>
                 <Registration />
               </MainLayout>
             )} />
@@ -79,6 +80,12 @@ class App extends Component {
                   <Login />
                 </MainLayout>
                 )} />
+
+            <Route path="/recovery" render={() =>(
+              <MainLayout>
+                <Recovery/>
+              </MainLayout>
+            )} />  
           </Switch>
       </div>
     );
