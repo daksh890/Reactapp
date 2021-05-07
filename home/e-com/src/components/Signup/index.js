@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector} from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import './style.scss';
 
-import { auth, handleUserProfile } from './../../firebase/utils';
+import { signUpUser, resetAllAuthForms } from './../../redux/user/user.actions';
 import FormInput from './../forms/Forminput';
 import Button from './../forms/Button';
 import AuthWrapper from './../AuthWrapper';
 
+const mapState = ({ user }) => ({
+    signUpSuccess: user.signUpSuccess,
+    signUpError: user.signUpError
+});
+
 const Signup = props => {
+    const { signUpSuccess , signUpError } = useSelector(mapState);
+    const dispatch = useDispatch();
     const [displayName, setDisplayName] = useState('');
     const[companyName, setCompanyName] = useState('');
     const[phoneNo, setphoneNo] = useState('');
@@ -15,6 +23,20 @@ const Signup = props => {
     const[password, setPassword] = useState('');
     const[confirmPassword, setConfirmPassword] = useState('');
     const[errors,setErrors] = useState([]);
+
+    useEffect(() =>{
+        if(signUpSuccess){
+            reset();
+            dispatch(resetAllAuthForms());
+            props.history.push('/');
+        }
+    }, [signUpSuccess]);
+
+    useEffect(() =>{
+        if(Array.isArray(signUpError) && signUpError.length > 0){
+            setErrors(signUpError);
+        }    
+    }, [signUpError]);
 
     const reset = () =>{
         setDisplayName('');
@@ -29,28 +51,14 @@ const Signup = props => {
     const handleFormSubmit = async event => {
         event.preventDefault();
 
-        if (password !== confirmPassword) {
-            const err = ['Password Don\'t match.'];
-            setErrors(err);
-            return;
-        }
-        if (password.length < 7) {
-            const err = ['Password length should be at least 7 characters long.'];
-            setErrors(err);
-            return;
-        }
-
-        try {
-            const { user } = await auth.createUserWithEmailAndPassword(email, password);
-            await handleUserProfile(user, { displayName, companyName, phoneNo });
-            reset();
-            props.history.push('/');
-
-        } catch (err) {
-            var err_msg = [err.message];
-            setErrors(err_msg);
-            //  console.log(err.message);
-        }
+        dispatch(signUpUser({
+            displayName,
+            companyName,
+            phoneNo,
+            email,
+            password,
+            confirmPassword
+        }));
 
     }
     const configAuthWrapper = {
