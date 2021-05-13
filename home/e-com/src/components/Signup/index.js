@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector} from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import './style.scss';
+import { useHistory } from 'react-router-dom';
+import { signUpUserStart } from './../../redux/user/user.actions';
 
-import { signUpUser, resetAllAuthForms } from './../../redux/user/user.actions';
 import FormInput from './../forms/Forminput';
 import Button from './../forms/Button';
 import AuthWrapper from './../AuthWrapper';
+import './style.scss';
+
 
 const mapState = ({ user }) => ({
-    signUpSuccess: user.signUpSuccess,
-    signUpError: user.signUpError
+    currentUser: user.currentUser,
+    userErr: user.userErr
 });
 
 const Signup = props => {
-    const { signUpSuccess , signUpError } = useSelector(mapState);
+    const history = useHistory();
+    const { currentUser, userErr } = useSelector(mapState);
     const dispatch = useDispatch();
     const [displayName, setDisplayName] = useState('');
     const[companyName, setCompanyName] = useState('');
@@ -25,18 +27,17 @@ const Signup = props => {
     const[errors,setErrors] = useState([]);
 
     useEffect(() =>{
-        if(signUpSuccess){
+        if(currentUser){
             reset();
-            dispatch(resetAllAuthForms());
-            props.history.push('/');
+            history.push('/');
         }
-    }, [signUpSuccess]);
+    }, [currentUser]);
 
     useEffect(() =>{
-        if(Array.isArray(signUpError) && signUpError.length > 0){
-            setErrors(signUpError);
+        if(Array.isArray(userErr) && userErr.length > 0){
+            setErrors(userErr);
         }    
-    }, [signUpError]);
+    }, [userErr]);
 
     const reset = () =>{
         setDisplayName('');
@@ -51,7 +52,7 @@ const Signup = props => {
     const handleFormSubmit = async event => {
         event.preventDefault();
 
-        dispatch(signUpUser({
+        dispatch(signUpUserStart({
             displayName,
             companyName,
             phoneNo,
@@ -139,4 +140,4 @@ const Signup = props => {
     );
 }
 
-export default withRouter(Signup);
+export default Signup;

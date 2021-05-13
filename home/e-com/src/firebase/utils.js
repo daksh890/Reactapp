@@ -11,7 +11,7 @@ export const firestore = firebase.firestore();
 export const GoogleProvider = new firebase.auth.GoogleAuthProvider();
 GoogleProvider.setCustomParameters({prompt : 'select_account'});
 
-export const handleUserProfile = async (userAuth, additionalData)=>{
+export const handleUserProfile = async ({ userAuth, additionalData }) => {
     if(!userAuth) return;
     const { uid } = userAuth;
 
@@ -21,6 +21,7 @@ export const handleUserProfile = async (userAuth, additionalData)=>{
     if(!snapshot.exists) {
         const {displayName, email, companyName, phoneNo } = userAuth;
         const timestamp = new Date();
+        
         try{
             await userRef.set({
                 displayName,
@@ -34,5 +35,15 @@ export const handleUserProfile = async (userAuth, additionalData)=>{
             //console.log(err);
         }
     }
+    console.log(userRef, 1)
     return userRef;
 };
+
+export const getCurrentUser = () => {
+    return new Promise((resolve, reject) => {
+        const unsubscribe = auth.onAuthStateChanged( userAuth => {
+            unsubscribe();
+            resolve(userAuth);
+        }, reject);
+    })
+}
