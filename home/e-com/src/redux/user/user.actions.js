@@ -1,118 +1,55 @@
 import userTypes from'./user.types';
-import { auth, handleUserProfile, GoogleProvider } from './../../firebase/utils';
 
 
-export const setCurrentUser = user => ({
-    type: userTypes.SET_CURRENT_USER,
-    payload:user
+export const emailSignInStart = userCredentials => ({
+    type: userTypes.EMAIL_SIGN_IN_START,
+    payload: userCredentials
 });
 
-export const resetAllAuthForms = () => ({
-    type: userTypes.RESET_AUTH_FORMS
+export const signInSuccess = user => ({
+    type: userTypes.SIGN_IN_SUCCESS,
+    payload: user 
+});
 
-})
+export const checkUserSession = () => ({
+    type: userTypes.CHECK_USER_SESSION
+});
 
-export const signInUser = ({email, password}) =>  async dispatch =>{
+export const signOutUserStart = () => ({
+    type: userTypes.SIGN_OUT_USER_START
+});
 
-    try {
+export const signOutUserSuccess = () => ({
+    type: userTypes.SIGN_OUT_USER_SUCCESS
+});
 
-        await auth.signInWithEmailAndPassword(email, password);
-        dispatch({
-            type: userTypes.SIGN_IN_SUCCESS,
-            payload: true
-        });
-    
-    } catch (err) {
-        // console.log(err);
-    }
-};
+export const signUpUserStart = userCredentials => ({
+    type: userTypes.SIGN_UP_USER_START,
+    payload: userCredentials
+});
 
-export const signUpUser = ({ displayName, companyName, phoneNo, email, password, confirmPassword, errors }) => async dispatch =>{
-    if (password !== confirmPassword) {
-        const err = ['Password Don\'t match.'];
-        dispatch({
-            type:userTypes.SIGN_UP_ERROR,
-            payload:err
-        });
-        return;
-    }
-    if (password.length < 7) {
-        const err = ['Password length should be at least 7 characters long.'];
-        dispatch({
-            type:userTypes.SIGN_UP_ERROR,
-            payload:err
-        });
-        return;
-    }
+export const userError = err => ({
+    type: userTypes.USER_ERROR,
+    payload: err
+});
 
-    try {
-        const { user } = await auth.createUserWithEmailAndPassword(email, password);
-        await handleUserProfile(user, { displayName, companyName, phoneNo });
-        dispatch({
-            type: userTypes.SIGN_UP_SUCCESS,
-            payload:true
-        });
+export const resetPasswordStart = userCredentials => ({
+    type: userTypes.RESET_PASSWORD_START,
+    payload: userCredentials
+});
 
-    } catch (err) {
-        var err_msg = [err.message];
-        dispatch({
-            type:userTypes.SIGN_UP_ERROR,
-            payload:err_msg
-        });
-        //  console.log(err.message);
-    }
-};
+export const resetPasswordSuccess = () => ({
+    type: userTypes.RESET_PASSWORD_SUCCESS,
+    payload: true
+});
 
-export const resetPassword = ({ email }) => async dispatch =>{
+export const resetUserState = () => ({
+    type: userTypes.RESET_USER_STATE
+});
 
-    const config = {
-        url: 'http://localhost:3000/login'
-    };
+export const googleSignInStart = () => ({
+    type: userTypes.GOOGLE_SIGN_IN_START
+});
 
-    try {
-        await auth.sendPasswordResetEmail(email, config)
-            .then(() => {
-                dispatch({
-                    type:userTypes.RESET_PASSWORD_SUCCESS,
-                    payload:true
-                });
-                // props.history.push('/login');
-                // console.log('Password Reset');
-            })
-            .catch(() => {
-                const err = ['Email not found. Please try again.'];
-                dispatch({
-                    type:userTypes.RESET_PASSWORD_ERROR,
-                    payload:err
-                });
-            });
-
-
-    } catch (err) {
-        var errlog = [err];
-        dispatch({
-            type:userTypes.RESET_PASSWORD_ERROR,
-            payload:errlog
-        });
-        //   console.log(err);
-    };
-
-};
-
-export const signInwithGoogle = () => async dispatch =>{
-
-    try{
-        await auth.signInWithPopup(GoogleProvider)
-            .then(() => {
-                dispatch({
-                    type: userTypes.SIGN_IN_SUCCESS,
-                    payload: true
-                });
-            });
-    } catch (err){
-        //console.log(err);
-    }
-
-};
 
 

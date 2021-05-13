@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, withRouter } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { signInUser, signInwithGoogle, resetAllAuthForms } from './../../redux/user/user.actions'
+
+import { Link, useHistory } from 'react-router-dom';
+import { emailSignInStart, googleSignInStart } from './../../redux/user/user.actions';
 
 import './styles.scss';
 import Button from './../forms/Button';
@@ -10,36 +11,47 @@ import AuthWrapper from './../AuthWrapper';
 import FormInput from './../forms/Forminput';
 
 const mapState= ({ user }) => ({
-    signInSuccess: user.signInSuccess
+    currentUser: user.currentUser,
+    userErr: user.userErr
 });
 
 const SignIn = props => {
-    const {signInSuccess } = useSelector(mapState);
+    const { currentUser, userErr } = useSelector(mapState);
     const dispatch = useDispatch(); 
+    const history = useHistory();
     const [email, setEmail] = useState('');
     const[password, setPassword] = useState('');
+    const[errors,setErrors] = useState([]);
     
 
     useEffect(() => {
-        if(signInSuccess){
+        if(currentUser){
           resetForm();
-          dispatch(resetAllAuthForms());
-          props.history.push('/');
+          history.push('/');
         }
-    }, [signInSuccess]);
+
+    }, [currentUser]);
+
+    useEffect(() =>{
+        if(Array.isArray(userErr) && userErr.length > 0){
+            setErrors(userErr);
+            console.log(userErr);
+        }    
+    }, [userErr]);
 
     const resetForm = () =>{
         setEmail('');
         setPassword('');
+        setErrors([]);
     };
 
     const handleSubmit = e => {
         e.preventDefault();
-        dispatch(signInUser({ email, password }));
+        dispatch(emailSignInStart({ email, password }));
     }
 
     const handleGoogleSignIn = () =>{
-        dispatch(signInwithGoogle());
+        dispatch(googleSignInStart());
 
     }
 
@@ -52,6 +64,19 @@ const SignIn = props => {
     return (
         <AuthWrapper {...configAuthWrapper}>
             <div className="formwrap">
+                <div className="error">
+                    {errors.length > 0 && (
+                        <ul>
+                            {errors.map((err, index) => {
+                                return (
+                                    <li key={index}>
+                                        {err}
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    )}
+                </div>
                 <form onSubmit={handleSubmit}>
 
                     <FormInput
@@ -94,4 +119,4 @@ const SignIn = props => {
     );
 };
 
-export default withRouter(SignIn);
+export default SignIn;
